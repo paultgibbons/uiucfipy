@@ -9,6 +9,9 @@ class FiPyTest(unittest.TestCase):
     Test class for FiPy
     '''
     def test_yahoo_symbols_url(self):
+        '''
+        Test to create url from a given list of stock symbols
+        '''
         yahoo_test_url = (r'https://query.yahooapis.com/v1/public/yql?q='
                           r'select%20*%20from%20yahoo.finance.quote%20where'
                           r'%20symbol%20in'
@@ -20,6 +23,9 @@ class FiPyTest(unittest.TestCase):
         self.assertEqual(yahoo_test_url, produced)
 
     def test_yahoo_historical_url(self):
+        '''
+        Test to create url to get historical prices of a single stock
+        '''
         yahoo_test_url = (r'https://query.yahooapis.com/v1/public/yql?q=sele'
                           r'ct%20*%20from%20yahoo.finance.historicaldata%20w'
                           r'here%20symbol%20%3D%20%22YHOO%22%20and%20startDa'
@@ -31,9 +37,15 @@ class FiPyTest(unittest.TestCase):
         self.assertEqual(yahoo_test_url, produced)
 
     def test_blank_yahoo(self):
+        '''
+        Test Exception thrown when no stocks are provided
+        '''
         self.assertRaises(Exception, yahoo_url, [])
 
     def test_stock(self):
+        '''
+        Test stock class
+        '''
         data = {}
 
         symbol = 'SYM'
@@ -64,6 +76,9 @@ class FiPyTest(unittest.TestCase):
         self.assertEqual(s.StockExchange, exchange)
 
     def test_get_stocks(self):
+        '''
+        Test main call that gets info on stocks by their symbols
+        '''
         symbols = ["YHOO", "AAPL", "fakeStock", "MSFT"]
         stocks = get_info(symbols)
         self.assertEqual(len(stocks), 3)

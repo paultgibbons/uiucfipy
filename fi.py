@@ -5,6 +5,12 @@ from datetime import date, timedelta
 
 
 def get_info(symbols, time=14, max_iterations=5):
+    '''
+    Takes a list of symbols as input and outputs an array of 
+    stock objects. Stock information goes back time days. Since
+    Yahoo API is not always reliable, allow up to max_iterations
+    calls to the API
+    '''
     url = yahoo_url(symbols)
     response = requests.get(url)
     if response.status_code == 400:
