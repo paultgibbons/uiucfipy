@@ -1,12 +1,15 @@
 import requests
+import numpy as np
 from yahoo import yahoo_url, historical_url
 from stock import Stock
 from datetime import date, timedelta
 
 
-def get_info(symbols, time=14, max_iterations=5):
+limit = 10
+
+def get_info(symbols, time=30, max_iterations=5):
     '''
-    Takes a list of symbols as input and outputs an array of 
+    Takes a list of symbols as input and outputs an array of
     stock objects. Stock information goes back time days. Since
     Yahoo API is not always reliable, allow up to max_iterations
     calls to the API
@@ -44,4 +47,8 @@ def get_info(symbols, time=14, max_iterations=5):
 
             stocks.append(Stock(quote, close_prices))
 
-    return stocks
+    return stocks[:10]
+
+def get_correlation_matrix(stocks):
+    prices = [s.recent_close_prices for s in stocks]
+    return np.corrcoef(prices).round(4)
