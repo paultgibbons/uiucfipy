@@ -1,0 +1,46 @@
+body {
+    margin: 1.5%;
+}
+
+input {
+    margin-top: 8px;
+}
+
+#correlation_matrix {
+    border-collapse: collapse;
+    padding: 5px; 
+}
+
+#correlation_matrix * td {
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.matrix_symbol {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
+a {
+    padding-right: 50px;
+}
+
+li {
+    margin: 20px;
+}
+
+.symbol {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.name {
+    font-size: 22px;
+}
+
+#footer {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}

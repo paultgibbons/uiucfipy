@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <table>
+    <tr>
+      <td>
+        Symbols:
+      </td>
+      <td>
+        <input type='text' id='symbols_input' placeholder = 'YHOO, AAPL, GOOG, MSFT'>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Calculate:
+      </td>
+      <td>
+        <input type='submit' id='submit'>
+      </td>
+    </tr>
+  </table>
+  <hr>
+  <h2>Correlation Matrix</h2>
+  <table id='correlation_matrix'></table>
+  <hr>
+  <h2>Stock Info</h2>
+  <ul id='stock_info'></ul>
+
+  <script src="/static/jquery-2.1.3.min.js"></script>
+  <script type="text/javascript">
+    function fix(data){
+      if (data['matrix'] === 1) {
+        data['matrix'] = [[1]];
+      }
+    }
+
+    function createTable(data){
+      var symbols = data['symbols'];
+      var matrix = data['matrix'];
+
+      var table = $('#correlation_matrix');
+
+      var tbody = $('<tbody></tbody>');
+      var top_elements = '';
+      for(var i = 0; i < symbols.length; i++){
+        top_elements = top_elements + '<td class="matrix_symbol">' + symbols[i] + '</td>';
+      }
+      var top_row = $('<tr><td></td>' + top_elements + '</tr>');
+
+      var rows =[]
+      for(var i = 0; i < symbols.length; i++){
+        var element = '<tr><td class="matrix_symbol">' + symbols[i] + '</td>';
+        for (var j = 0; j < symbols.length; j++) {
+          element += '<td>' + matrix[i][j] + '</td>';
+        }
+        element += '</tr>';
+        rows.push(element);
+      }
+
+      tbody.append(top_row)
+      tbody.append.apply(tbody, rows);
+
+      table.empty();
+      table.append(tbody);
+    }
+
+    function populate_stock_info(stocks) {
+      var stock_info = $('#stock_info');
+      var s = [];
+      for (var i = 0; i < stocks.length; i++) {
+        var stock = stocks[i];
+        var stock_string = '<li>';
+        stock_string += '<span class="symbol">'+stock['symbol']+'</span>';
+        stock_string += '<span class="name"> | '+stock['Name']+'</span><br>';
+
+        stock_string += '<a href="'+stock['bs_url']+'" target="_blank">balance sheet</a>';
+        stock_string += '<a href="'+stock['is_url']+'" target="_blank">income statment</a>';
+        stock_string += '<a href="'+stock['cf_url']+'" target="_blank">cash flow</a><br>';
+
+        stock_string += 'Price: ' + stock['LastTradePriceOnly'];
+        stock_string += ' &nbsp|&nbsp Market Capitalization: ' + stock['MarketCapitalization'];
+        stock_string += ' &nbsp|&nbsp Average Daily Volume: ' + stock['AverageDailyVolume'];
+        
+        stock_string += '</li>';
+        s.push(stock_string);
+      }
+      stock_info.empty();
+      stock_info.append.apply(stock_info, s)
+    }
+
+    var sym = $('#symbols_input');
+    sym.on('click', function(event){
+      sym[0].placeholder = '';
+    });
+
+    var submit = $('#submit');
+    submit.on('click', function(event){
+      values = sym.val().replace(/\s+/g, "");
+      values = values.split(',');
+      $.ajax({
+        type: 'GET',
+        url: "/get_info",
+        data: 'symbols='+values,
+        success: function( data ) {
+          console.log(data);
+          fix(data);
+          createTable(data);
+          populate_stock_info(data['stocks']);
+        }
+      })
+    });
+  </script>
+{% endblock %}
