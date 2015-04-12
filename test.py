@@ -89,6 +89,13 @@ class FiPyTest(unittest.TestCase):
         if len(cp) < 3 or cp[2] < 0.05 or cp[2] > 9999.5:
             self.fail('Wrong close prices')
 
+    def test_get_zero_stocks(self):
+        '''
+        Test call to getting zero stocks 
+        '''
+        stocks = get_info([])
+        self.assertEqual(stocks, [])
+
 
 def main():
     unittest.main()
