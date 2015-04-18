@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# TODO
+# - week 4 - least squares
+#
 import os
 import numpy as np
 import json
@@ -27,14 +30,16 @@ from stock import Stock
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                extensions=['jinja2.ext.autoescape'],
-                               autoescape = True)
+                               autoescape=True)
+
 
 class BaseHandler(webapp2.RequestHandler):
     def render(self, template_page, **template_values):
         template = jinja_env.get_template(template_page)
         self.response.write(template.render(template_values))
+
 
 class MainHandler(BaseHandler):
     """
@@ -42,6 +47,7 @@ class MainHandler(BaseHandler):
     """
     def get(self):
         self.render('index.html')
+
 
 class InfoHandler(BaseHandler):
     """
@@ -52,20 +58,18 @@ class InfoHandler(BaseHandler):
         query = [str(word) for word in data]
 
         stocks = get_info(query)
-
-        # current ex just gives the matrix and symbols
         symbols = [s.symbol for s in stocks]
         matrix = get_correlation_matrix(stocks).tolist()
-        # ---
 
-        self.response.headers['Content-Type'] = 'application/json' 
+        self.response.headers['Content-Type'] = 'application/json'
         response = {
             'query': query,
             'symbols': symbols,
             'stocks': [s.__dict__ for s in stocks],
             'matrix': matrix
-        } 
+        }
         self.response.out.write(json.dumps(response))
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <table>
+  <table id="input">
     <tr>
-      <td>
+      <td class="_label">
         Symbols:
       </td>
       <td>
@@ -11,20 +11,28 @@
       </td>
     </tr>
     <tr>
-      <td>
+      <td class="_label">
         Calculate:
       </td>
       <td>
         <input type='submit' id='submit'>
       </td>
     </tr>
+    <tr>
+      <td class="_label">
+        Status:
+      </td>
+      <td id='status'>
+        Waitng for input
+      </td>
+    </tr>
   </table>
   <hr>
   <h2>Correlation Matrix</h2>
-  <table id='correlation_matrix'></table>
+  <table id="correlation_matrix"><tbody><tr><td></td><td class="matrix_symbol">YHOO</td><td class="matrix_symbol">AAPL</td><td class="matrix_symbol">GOOG</td><td class="matrix_symbol">MSFT</td></tr><tr><td class="matrix_symbol">YHOO</td><td class="danger0">1</td><td class="danger1">0.1332</td><td class="danger1">0.0761</td><td class="danger2">0.1778</td></tr><tr><td class="matrix_symbol">AAPL</td><td class="danger1">0.1332</td><td class="danger0">1</td><td class="danger1">0.0492</td><td class="danger4">0.5984</td></tr><tr><td class="matrix_symbol">GOOG</td><td class="danger1">0.0761</td><td class="danger1">0.0492</td><td class="danger0">1</td><td class="danger4">0.6399</td></tr><tr><td class="matrix_symbol">MSFT</td><td class="danger2">0.1778</td><td class="danger4">0.5984</td><td class="danger4">0.6399</td><td class="danger0">1</td></tr></tbody></table>
   <hr>
-  <h2>Stock Info</h2>
-  <ul id='stock_info'></ul>
+  <h2>Stock Information</h2>
+  <ul id="stock_info"><li><div class="title"><span class="symbol">YHOO</span><span class="name"> | Yahoo! Inc.</span><br></div><div class="financial_links"><a href="https://finance.yahoo.com/q/bs?s=yhoo+Balance+Sheet&amp;quarterly" target="_blank">balance sheet</a><a href="https://finance.yahoo.com/q/is?s=yhoo+Income+Statement&amp;quarterly" target="_blank">income statment</a><a href="https://finance.yahoo.com/q/cf?s=yhoo+Cash+Flow&amp;quarterly" target="_blank">cash flow</a><br></div><div class="stock_information">Price: 45.525 &nbsp;|&nbsp; Market Capitalization: 42.62B &nbsp;|&nbsp; Average Daily Volume: 16718700</div></li><li><div class="title"><span class="symbol">AAPL</span><span class="name"> | Apple Inc.</span><br></div><div class="financial_links"><a href="https://finance.yahoo.com/q/bs?s=aapl+Balance+Sheet&amp;quarterly" target="_blank">balance sheet</a><a href="https://finance.yahoo.com/q/is?s=aapl+Income+Statement&amp;quarterly" target="_blank">income statment</a><a href="https://finance.yahoo.com/q/cf?s=aapl+Cash+Flow&amp;quarterly" target="_blank">cash flow</a><br></div><div class="stock_information">Price: 126.30 &nbsp;|&nbsp; Market Capitalization: 735.67B &nbsp;|&nbsp; Average Daily Volume: 56031500</div></li><li><div class="title"><span class="symbol">GOOG</span><span class="name"> | Google Inc.</span><br></div><div class="financial_links"><a href="https://finance.yahoo.com/q/bs?s=goog+Balance+Sheet&amp;quarterly" target="_blank">balance sheet</a><a href="https://finance.yahoo.com/q/is?s=goog+Income+Statement&amp;quarterly" target="_blank">income statment</a><a href="https://finance.yahoo.com/q/cf?s=goog+Cash+Flow&amp;quarterly" target="_blank">cash flow</a><br></div><div class="stock_information">Price: 530.39 &nbsp;|&nbsp; Market Capitalization: 361.00B &nbsp;|&nbsp; Average Daily Volume: 1879190</div></li><li><div class="title"><span class="symbol">MSFT</span><span class="name"> | Microsoft Corporation</span><br></div><div class="financial_links"><a href="https://finance.yahoo.com/q/bs?s=msft+Balance+Sheet&amp;quarterly" target="_blank">balance sheet</a><a href="https://finance.yahoo.com/q/is?s=msft+Income+Statement&amp;quarterly" target="_blank">income statment</a><a href="https://finance.yahoo.com/q/cf?s=msft+Cash+Flow&amp;quarterly" target="_blank">cash flow</a><br></div><div class="stock_information">Price: 41.65 &nbsp;|&nbsp; Market Capitalization: 341.69B &nbsp;|&nbsp; Average Daily Volume: 39414000</div></li></ul>
 
   <script src="/static/jquery-2.1.3.min.js"></script>
   <script type="text/javascript">
@@ -32,6 +40,27 @@
       if (data['matrix'] === 1) {
         data['matrix'] = [[1]];
       }
+      for (var i = 0; i < data['stocks'].length; i++) {
+        var stock = data['stocks'][i];
+        stock['symbol'] = stock['symbol'].toUpperCase();
+        stock['Symbol'] = stock['Symbol'].toUpperCase();
+      }
+      for (var i = 0; i < data['symbols'].length; i++) {
+        data['symbols'][i] = data['symbols'][i].toUpperCase();
+      }
+      for (var i = 0; i < data['query'].length; i++) {
+        data['query'][i] = data['query'][i].toUpperCase();
+      }
+    }
+
+    function update_table_font_size(len) {
+      var table_elements = $('#correlation_matrix * td');
+      if (len > 11 && len <= 13) {
+        table_elements.css('font-size', '21px');
+      } else if (len > 13) {
+        table_elements.css('font-size', '18px');
+      }
+      var width = table_elements.first().width();
     }
 
     function createTable(data){
@@ -51,7 +80,15 @@
       for(var i = 0; i < symbols.length; i++){
         var element = '<tr><td class="matrix_symbol">' + symbols[i] + '</td>';
         for (var j = 0; j < symbols.length; j++) {
-          element += '<td>' + matrix[i][j] + '</td>';
+          var d = 0;
+          var val = Math.abs(matrix[i][j]);
+          if (val < 1) { d = 6; }
+          if (val < 0.85) { d = 5; }
+          if (val < 0.68) { d = 4; }
+          if (val < 0.51) { d = 3; }
+          if (val < 0.34) { d = 2; }
+          if (val < 0.17) { d = 1; }
+          element += '<td class="danger' + d + '">' + matrix[i][j] + '</td>';
         }
         element += '</tr>';
         rows.push(element);
@@ -62,6 +99,24 @@
 
       table.empty();
       table.append(tbody);
+      update_table_font_size(symbols.length);
+    }
+
+    function get_values(sym) {
+      var value = sym.val();
+      value = value.replace(/;/g, ",");
+      value = value.replace(/[0-9]/g, "");
+      value = value.replace(/\s+/g, "");
+      var comma = value.indexOf(',');
+      var space = value.search('\s+');
+      value = value.split(',');
+      return value;
+    }
+
+    function error_fn(error_message) {
+      var table = $('#input');
+      var error_row = '<tr id="error_row"><td>Error:</td><td>'+error_message+'</td></tr>';
+      table.append(error_row);
     }
 
     function populate_stock_info(stocks) {
@@ -70,16 +125,23 @@
       for (var i = 0; i < stocks.length; i++) {
         var stock = stocks[i];
         var stock_string = '<li>';
+
+        stock_string += '<div class="title">'
         stock_string += '<span class="symbol">'+stock['symbol']+'</span>';
         stock_string += '<span class="name"> | '+stock['Name']+'</span><br>';
+        stock_string += '</div>'
 
+        stock_string += '<div class="financial_links">'
         stock_string += '<a href="'+stock['bs_url']+'" target="_blank">balance sheet</a>';
         stock_string += '<a href="'+stock['is_url']+'" target="_blank">income statment</a>';
         stock_string += '<a href="'+stock['cf_url']+'" target="_blank">cash flow</a><br>';
+        stock_string += '</div>'
 
+        stock_string += '<div class="stock_information">'
         stock_string += 'Price: ' + stock['LastTradePriceOnly'];
         stock_string += ' &nbsp|&nbsp Market Capitalization: ' + stock['MarketCapitalization'];
         stock_string += ' &nbsp|&nbsp Average Daily Volume: ' + stock['AverageDailyVolume'];
+        stock_string += '</div>'
         
         stock_string += '</li>';
         s.push(stock_string);
@@ -89,23 +151,47 @@
     }
 
     var sym = $('#symbols_input');
-    sym.on('click', function(event){
-      sym[0].placeholder = '';
+    var submit = $('#submit');
+    sym.keypress(function(e) {
+        if(e.which == 13) {
+            submit.click();
+        }
     });
 
-    var submit = $('#submit');
     submit.on('click', function(event){
-      values = sym.val().replace(/\s+/g, "");
-      values = values.split(',');
+      submit.prop('disabled', true);
+      submit.css('color', '#acacac');
+      var status = $('#status');
+      status.text('Loading...');
+      var values = get_values(sym);
       $.ajax({
         type: 'GET',
         url: "/get_info",
         data: 'symbols='+values,
         success: function( data ) {
-          console.log(data);
           fix(data);
           createTable(data);
           populate_stock_info(data['stocks']);
+          $('#error_row').remove();
+          if (data['query'].length !== data['symbols'].length) {
+            var diff = $(data['query']).not(data['symbols']).get();
+            console.log(data);
+            console.log(diff);
+            var error_message = 'No stock found for symbols:';
+            for (var i = 0; i < diff.length; i++) {
+              error_message += (' ' + diff[i]+ ',');
+            }
+            error_message = error_message.slice(0, -1);
+            error_fn(error_message);
+          }
+          status.text('Waitng for input');
+          submit.css('color', '#333');
+          submit.prop('disabled', false);
+        },
+        error: function( data ) {
+          error_fn(data['statusText']);
+          submit.css('color', '#333');
+          submit.prop('disabled', false);
         }
       })
     });
