@@ -1,0 +1,11 @@
+Manual Test plan for FiPy:
+
+- Open uiucfipy.appspot.com
+- notice how beautiful the page is
+- notice all the pretty fonts and background image
+- resize the window up and down
+- be amazed at how dynamic the site is
+- enter some stuff in mixed case
+- use semicolons, extra spaces, extra digits
+- notice its all fixed when sending
+- notice convenient status bar and error messages
