@@ -115,5 +115,5 @@ def get_correlation_matrix(input):
     stocks = input
     if type(stocks[0]) == str:
         stocks = get_info(stocks)
-    prices = [s.recent_close_prices for s in stocks]
+    prices = [s.recent_close_prices*1.0 for s in stocks]
     return np.corrcoef(prices).round(4)
