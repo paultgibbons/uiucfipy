@@ -26,6 +26,7 @@ import jinja2
 
 from fi import get_info, get_correlation_matrix
 from stock import Stock
+from predict import predict_change
 # from google.appengine.ext import db
 
 
@@ -71,7 +72,25 @@ class InfoHandler(BaseHandler):
         self.response.out.write(json.dumps(response))
 
 
+class PredictHandler(BaseHandler):
+    """
+    Returns json giving prediction and actual for desired symbol
+    """
+    def get(self):
+        symbol = self.request.get('symbol')
+        data = predict_change(symbol)
+        [guess, actual] = data
+        response = {
+            'guess_buy': (1 if guess > 0 else -1),
+            'hit': (1 if actual*guess > 0 else -1),
+            'guess': guess,
+            'actual': actual
+        }
+        self.response.out.write(json.dumps(response))
+
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
-    ('/get_info', InfoHandler)
+    ('/get_info', InfoHandler),
+    ('/predict', PredictHandler)
 ], debug=True)

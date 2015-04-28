@@ -1,5 +1,5 @@
 from fi import get_info
-from yahoo import yahoo_url, historical_url
+from yahoo import yahoo_url, historical_url, key_info_url, top_symbols
 from stock import Stock
 import unittest
 
@@ -41,6 +41,23 @@ class FiPyTest(unittest.TestCase):
         Test Exception thrown when no stocks are provided
         '''
         self.assertRaises(Exception, yahoo_url, [])
+
+    def test_yahoo_key_info_url(self):
+        '''
+        Test key info url from yahoo
+        '''
+        yahoo_test_url = r'http://finance.yahoo.com/d/quotes.csv?s='
+        yahoo_test_url += 'GOOG+FB'
+        yahoo_test_url += r'&f=see9db4j1j4p5p6s7m8'
+        produced = key_info_url(['GOOG', 'FB'])
+        self.assertEqual(yahoo_test_url, produced)
+
+    def test_yahoo_top_symbols(self):
+        '''
+        Assert there are at least 300 stocks going into call
+        '''
+        t = top_symbols()
+        self.assertGreaterEqual(t, 300)
 
     def test_stock(self):
         '''
